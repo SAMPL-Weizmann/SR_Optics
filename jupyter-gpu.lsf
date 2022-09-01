@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#BSUB -J jupyter_gpu_job                       						# CHANGE JOB NAME
+#BSUB -q waic-medium                            				    # QUEUE TO RUN IN
+#BSUB -gpu num=2:j_exclusive=yes:gmodel=TeslaV100_SXM2_32GB         # NUM OF GPUS
+#BSUB -R rusage[mem=131072]                    						# MEMORY IN MB
+#BSUB -R affinity[thread*4]                 					    # CPU THREADS
+	
+# WORKAROUND
+if [ -f ~/.bash_profile ]; then
+  . ~/.bash_profile
+elif [ -f ~/.profile ]; then
+  . ~/.profile
+fi
+
+# ACTIVATE YOUR CONDA ENVIRONMENT
+module load miniconda/4.7.12/python/3.7.0; . activate;
+conda activate /home/projects/yonina/yairb/.conda/envs/autosparcom
+
+# RUN YOUR CODE
+JUPYTER_RUNTIME_DIR="${HOME}/.cache/jupyter-runtime/$(shuf -i 100000-999999 -n 1)"
+export JUPYTER_RUNTIME_DIR
+JUPYTER_ALLOW_INSECURE_WRITES=True
+export JUPYTER_ALLOW_INSECURE_WRITES
+jupyter notebook --no-browser --ip "0.0.0.0" --port "$(shuf -i 30000-59999 -n 1)"
+
